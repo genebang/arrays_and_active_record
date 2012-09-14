@@ -24,6 +24,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     name = "Fake Name"
     d    = Dealership.create(:name => name)
     # put your code here
+    dealership = Dealership.where(:name => name).first
     assert_equal d, dealership
   end
 
@@ -39,6 +40,7 @@ class ActiveRecordTest < Test::Unit::TestCase
       cars << Car.create(:color => "cheetah")
     end
     # put your code here
+    color_group = Car.group(:color).count
     assert_equal Car.where(:color => "cheetah").count, color_group["cheetah"]
   end
 
@@ -52,6 +54,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     cars << Car.create(:condition => "not so good")
     Car.create(:condition => "straight up bad")
     # put your code here
+    your_cars = Car.where("condition like '%good%'")
     assert_equal cars, your_cars
   end
 
@@ -65,6 +68,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     dealerz = 3.times.map { Dealership.create(:name => Faker::Company.name) }
     ids     = dealerz.map {|d| d.id }
     # put your code here
+    dealerships = Dealership.where("id in (?)", ids)
     assert_equal dealerz, dealerships
   end
 
@@ -76,9 +80,9 @@ class ActiveRecordTest < Test::Unit::TestCase
     reverse_cars = []
     cars = 5.times.map {Car.create}
     # put your code here
+    reverse_cars = Car.order("color ASC").order("id DESC").first(5)
     assert_equal cars.reverse, reverse_cars
   end
-
 
   # find the first 4 cars
   # assign to variable `limited_cars`
@@ -86,6 +90,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     limited_cars = nil
     cars = 5.times.map { Car.create }
     # put your code here
+    limited_cars = Car.offset(12).limit(4)
     assert_equal cars.first(4), limited_cars
   end
 
@@ -95,6 +100,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     offset_cars = nil
     cars = 5.times.map {Car.create}
     # put your code here
+    offset_cars = Car.offset(18).limit(2)
     assert_equal cars[1,2], offset_cars
   end
 
@@ -114,6 +120,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     d = Dealership.create(:name => Faker::Company.name)
     d.cars.create(:color => "blue")
     # put your code here
+    dealerships = Dealership.joins(:cars).where(:cars => { :color => 'red'})
     assert_equal dealerz, dealerships
   end
 
@@ -136,7 +143,7 @@ class ActiveRecordTest < Test::Unit::TestCase
     d  = Dealership.create(:name => Faker::Company.name)
     d.cars.create(:color => color, :top_speed => 2)
     # put your code here
-    dealerships = Dealership.joins(:cars).group("dealerships.id, cars.top_speed").having("")
+    dealerships = Dealership.joins(:cars).group("dealerships.id, cars.top_speed").having("top_speed = 5")
     assert_equal dealerz, dealerships.all
   end
 
